@@ -15,11 +15,11 @@ def run_proxy(port):
     http_server.listen(port)
 
     print("Server is up ...")
-    tornado.ioloop.IOLoop.instance().start()  #プロキシサーバを稼働させる
+    tornado.ioloop.IOLoop.instance().start()
 
 
 if __name__ == "__main__":
-    port = 8888
+    port = 37893
     if len(sys.argv) > 1:
         port = int(sys.argv[1])
 

@@ -50,7 +50,6 @@ class ProxyHandler(tornado.web.RequestHandler):
             allow_nonstandard_methods=True)
         client = tornado.httpclient.AsyncHTTPClient()
         try:
-            # コールバック関数にhandle_responseを指定。ここにアクセスしたレスポンスが入る
             client.fetch(req, get_response)
         except tornado.httpclient.HTTPError as e:
             if hasattr(e, 'response') and e.response:

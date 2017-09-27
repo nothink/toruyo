@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from .dumper import Dumper
+
 import sys
 import os
 import tornado.httpserver
@@ -36,7 +38,10 @@ class ProxyHandler(tornado.web.RequestHandler):
                     if v:
                         self.set_header(header, v)
                 if response.body:
-                    print(self.request.uri)
+                    # Dump urls.
+                    dt = Dumper(self.request.uri)
+                    dt.start()
+                    # Write threw.
                     self.write(response.body)
                 self.finish()
 

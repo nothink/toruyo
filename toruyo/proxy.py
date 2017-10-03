@@ -8,12 +8,9 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 
-import ssl
-
+#import ssl
 
 class ProxyWorker(Process):
-    port = 8080
-
     def __init__(self, port):
         super().__init__()
 

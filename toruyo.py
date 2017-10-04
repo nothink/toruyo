@@ -10,9 +10,10 @@ from multiprocessing import Process
 from tornado.options import define, options
 from tornado.options import parse_command_line, parse_config_file
 
-define("bind", default="0.0.0.0", help="", type=str)
-define("port", default=8000, help="port number", type=int)
-define("patterns", default=[], help="list", type=list)
+define("bind", default="0.0.0.0", help="ip address that bind to", type=str)
+define("port", default=8000, help="port number that listen to", type=int)
+define("dump_root", default=8000, help="root dir's path for dumping", type=str)
+define("patterns", default=[], help="list of matching patterns", type=list)
 define("config", default="toruyo.conf", help="config file", type=str)
 
 if __name__ == "__main__":
@@ -25,6 +26,7 @@ if __name__ == "__main__":
     pw = ProxyWorker(
         port=options.port,
         address=options.bind,
+        dump_root=options.dump_root,
         patterns=options.patterns)
     pw.start()
 

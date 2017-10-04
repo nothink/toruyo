@@ -10,11 +10,12 @@ from tornado.web import Application
 
 
 class ProxyWorker(Process):
-    def __init__(self, port, address='', patterns=[]):
+    def __init__(self, port, address='0.0.0.0', dump_root='./'', patterns=[]):
         super().__init__()
 
         self.port = port
         self.address = address
+        self.dump_root = dump_root
         self.patterns = patterns
 
     def run(self):

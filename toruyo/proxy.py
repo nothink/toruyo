@@ -8,20 +8,25 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 
-#import ssl
 
 class ProxyWorker(Process):
-    def __init__(self, port):
+    def __init__(self, port, address='', patterns=[]):
         super().__init__()
 
         self.port = port
+        self.address = address
+        self.patterns = patterns
 
     def run(self):
         app = Application([(r'.*', ProxyHandler)])
         server = HTTPServer(app)
 
+        for p in self.patterns:
+            print("  pattern: " + str(p))
+
         print("Binding port %d" % self.port)
-        server.listen(self.port)
+        server.bind(self.port, address=self.address)
+        server.start(0)
 
         print("Proxy server is up ...")
         loop = IOLoop.instance()

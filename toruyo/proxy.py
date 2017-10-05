@@ -27,7 +27,7 @@ class Proxy(Process):
 
         print("Binding port %d" % self.port)
         server.bind(self.port, address=self.address)
-        server.start(0)
+        server.start(1)
 
         print("Proxy server is up ...")
         loop = IOLoop.instance()

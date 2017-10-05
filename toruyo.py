@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
-from toruyo.proxy import ProxyWorker
+from toruyo.proxy import Proxy
 
 import sys
 import os.path
@@ -12,9 +12,10 @@ from tornado.options import parse_command_line, parse_config_file
 
 define("bind", default="0.0.0.0", help="ip address that bind to", type=str)
 define("port", default=8000, help="port number that listen to", type=int)
-define("dump_root", default=8000, help="root dir's path for dumping", type=str)
+define("dump_root", default="./", help="root dir's path for dumping", type=str)
 define("patterns", default=[], help="list of matching patterns", type=list)
 define("config", default="toruyo.conf", help="config file", type=str)
+define("debug", default=False, help="run in debug mode", type=bool)
 
 if __name__ == "__main__":
     parse_command_line()
@@ -23,11 +24,12 @@ if __name__ == "__main__":
     parse_command_line()
 
     print("*** Starting cache proxy worker ***")
-    pw = ProxyWorker(
+    proxy = Proxy(
         port=options.port,
         address=options.bind,
         dump_root=options.dump_root,
-        patterns=options.patterns)
-    pw.start()
+        patterns=options.patterns,
+        debug=options.debug)
+    proxy.start()
 
-    pw.join()
+    proxy.join()

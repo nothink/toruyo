@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .dumper import Dumper
+from .dumper.worker import Dumper
 
 import sys
 import os

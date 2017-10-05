@@ -1,30 +1,24 @@
 
+
 # -*- coding: utf-8 -*-
 
 from .dumper.worker import Dumper
 
-import sys
-import os
-import logging
 import socket
 
-import tornado.httpserver
-import tornado.ioloop
-import tornado.iostream
-import tornado.web
-import tornado.httpclient
-import tornado.httputil
+from tornado.iostream import IOStream
+from tornado.web import RequestHandler, asynchronous
+from tornado.httpclient import HTTPRequest, AsyncHTTPClient, HTTPError
+from tornado.httputil import HTTPHeaders
 
 
-class ProxyHandler(tornado.web.RequestHandler):
+class ProxyHandler(RequestHandler):
     '''
     Proxy Handler Class
     '''
     SUPPORTED_METHODS = ("GET", "POST", "HEAD", "PUT", "CONNECT")
 
-    # logger = None
-
-    @tornado.web.asynchronous
+    @asynchronous
     def get(self):
         '''
         GET request event handling　(Transparently).
@@ -33,16 +27,16 @@ class ProxyHandler(tornado.web.RequestHandler):
             # Remove harmful 'Proxy-Connection' header.
             if 'Proxy-Connection' in self.request.headers:
                 del self.request.headers['Proxy-Connection']
-            req = tornado.httpclient.HTTPRequest(
+            req = HTTPRequest(
                 url=self.request.uri,
                 method=self.request.method,
                 body=self.request.body if self.request.body else None,
                 headers=self.request.headers,
                 follow_redirects=False,
                 allow_nonstandard_methods=True)
-            client = tornado.httpclient.AsyncHTTPClient()
+            client = AsyncHTTPClient()
             client.fetch(req, self.__handle_response, raise_error=False)
-        except tornado.httpclient.HTTPError as e:
+        except HTTPError as e:
             if hasattr(e, 'response') and e.response:
                 self.__handle_response(e.response)
             else:
@@ -52,14 +46,14 @@ class ProxyHandler(tornado.web.RequestHandler):
 
     def __handle_response(self, response):
         '''
-        Handling all response datas... and dump.
+        (Internal) Handling all response datas... and dumping.
         '''
-        if response.error and not isinstance(response.error, tornado.httpclient.HTTPError):
+        if response.error and not isinstance(response.error, HTTPError):
             self.set_status(500)
             self.write('500 Internal server error:\n' + str(response.error))
         else:
             self.set_status(response.code, response.reason)
-            self._headers = tornado.httputil.HTTPHeaders()
+            self._headers = HTTPHeaders()
 
             for header_k, v in response.headers.get_all():
                 EXCLUDE_HEADERS = (
@@ -86,17 +80,11 @@ class ProxyHandler(tornado.web.RequestHandler):
     # put : same as get
     put = get
 
-    @tornado.web.asynchronous
+    @asynchronous
     def connect(self):
         '''
         CONNECT request event handling　(Transparently).
         '''
-        print('********************** CONNECT **********************')
-        host, port = self.request.uri.split(':')
-        client = self.request.connection.stream
-        print('host: ' + host)
-        print('port: ' + port)
-
         def read_from_client(data):
             upstream.write(data)
 
@@ -118,7 +106,6 @@ class ProxyHandler(tornado.web.RequestHandler):
             client.close()
 
         def start_tunnel():
-#            logger.debug('CONNECT tunnel established to %s', self.request.uri)
             client.read_until_close(client_close, read_from_client)
             upstream.read_until_close(upstream_close, read_from_upstream)
             client.write(b'HTTP/1.0 200 Connection established\r\n\r\n')
@@ -128,7 +115,6 @@ class ProxyHandler(tornado.web.RequestHandler):
                 first_line = data.splitlines()[0]
                 http_v, status, text = first_line.split(None, 2)
                 if int(status) == 200:
-#                    logger.debug('Connected to upstream proxy %s', proxy)
                     start_tunnel()
                     return
 
@@ -141,6 +127,9 @@ class ProxyHandler(tornado.web.RequestHandler):
             upstream.write('Proxy-Connection: Keep-Alive\r\n\r\n')
             upstream.read_until('\r\n\r\n', on_proxy_response)
 
+        host, port = self.request.uri.split(':')
+        client = self.request.connection.stream
+
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-        upstream = tornado.iostream.IOStream(s)
+        upstream = IOStream(s)
         upstream.connect((host, int(port)), start_tunnel)

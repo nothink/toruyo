@@ -3,10 +3,6 @@
 
 from toruyo.proxy import Proxy
 
-import sys
-import os.path
-from multiprocessing import Process
-
 from tornado.options import define, options
 from tornado.options import parse_command_line, parse_config_file
 

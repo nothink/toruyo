@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from .handler import ProxyHandler
+#from .dumper.channel import DumpChannel
+from .dumper import Dumper
 
 from multiprocessing import Process
 
@@ -21,8 +23,13 @@ class Proxy(Process):
         self.patterns = patterns
         self.debug = debug
 
+        self.dumper = Dumper(5)
+
     def run(self):
-        app = Application([(r'.*', ProxyHandler)], debug=self.debug)
+        self.dumper.run()
+        app = Application(
+            [(r'.*', ProxyHandler, dict(dumper=self.dumper))],
+            debug=self.debug)
         server = HTTPServer(app)
 
         print("Binding port %d" % self.port)

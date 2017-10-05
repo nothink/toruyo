@@ -2,8 +2,6 @@
 
 # -*- coding: utf-8 -*-
 
-from .dumper.worker import Dumper
-
 import socket
 
 from tornado.iostream import IOStream
@@ -17,6 +15,9 @@ class ProxyHandler(RequestHandler):
     Proxy Handler Class
     '''
     SUPPORTED_METHODS = ("GET", "POST", "HEAD", "PUT", "CONNECT")
+
+    def initialize(self, dumper):
+        self.dumper = dumper
 
     @asynchronous
     def get(self):
@@ -66,9 +67,11 @@ class ProxyHandler(RequestHandler):
                     self.add_header(header_k, v)
 
             if response.body:
+                # Dump
+                self.dumper.put_request(self.request.uri)
                 # Dump urls.
-                dt = Dumper(self.request.uri)
-                dt.start()
+#                dt = Dumper(self.request.uri)
+#                dt.start()
                 # Write threw.
                 self.write(response.body)
         self.finish()

@@ -102,4 +102,5 @@ ENV/
 
 ######################################
 # project specific files
-toruyo.conf
+proxy.conf
+patterns.json

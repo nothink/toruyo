@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
-from toruyo.proxy import Proxy
+from src.proxy import Proxy
 
 from tornado.options import define, options
 from tornado.options import parse_command_line, parse_config_file
@@ -10,7 +10,7 @@ define("bind", default="0.0.0.0", help="ip address that bind to", type=str)
 define("port", default=8000, help="port number that listen to", type=int)
 define("dump_root", default="./", help="root dir's path to dump", type=str)
 define("patterns", default=[], help="list of matching patterns", type=list)
-define("config", default="toruyo.conf", help="config file", type=str)
+define("config", default="proxy.conf", help="config file", type=str)
 define("debug", default=False, help="run in debug mode", type=bool)
 define("num_processes", default=0, help="number of sub-processes(0:auto)",
        type=int)

@@ -69,9 +69,6 @@ class ProxyHandler(RequestHandler):
             if response.body:
                 # Dump
                 self.dumper.request(http_req=self.request, http_res=response)
-                # Dump urls.
-#                dt = Dumper(self.request.uri)
-#                dt.start()
                 # Write threw.
                 self.write(response.body)
         self.finish()

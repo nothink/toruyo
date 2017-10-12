@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from threading import Thread, Event
-from queue import Queue, Empty
-
-from datetime import datetime
 import os
+from datetime import datetime
 import fcntl
 from urllib.parse import urlparse
+from queue import Queue, Empty
+from threading import Thread, Event
 
 
 class Dumper(object):

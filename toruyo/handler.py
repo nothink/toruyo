@@ -25,7 +25,7 @@ class ProxyHandler(RequestHandler):
         GET request event handling　(Transparently).
         '''
         try:
-            # Remove harmful 'Proxy-Connection' header.
+            # Delete a harmful 'Proxy-Connection' header.
             if 'Proxy-Connection' in self.request.headers:
                 del self.request.headers['Proxy-Connection']
             req = HTTPRequest(
@@ -68,7 +68,7 @@ class ProxyHandler(RequestHandler):
 
             if response.body:
                 # Dump
-                self.dumper.put_request(self.request.uri)
+                self.dumper.request(http_req=self.request, http_res=response)
                 # Dump urls.
 #                dt = Dumper(self.request.uri)
 #                dt.start()

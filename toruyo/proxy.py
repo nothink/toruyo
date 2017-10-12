@@ -12,19 +12,19 @@ from tornado.web import Application
 
 
 class Proxy(Process):
-    def __init__(self, port, address='0.0.0.0', dump_root='./',
+    def __init__(self, port, address='0.0.0.0',
+                 dump_root='./',
                  patterns=[], debug=False,
                  num_processes=0, num_dumpers=5):
         super().__init__()
 
         self.port = port
         self.address = address
-        self.dump_root = dump_root
         self.patterns = patterns
         self.debug = debug
         self.num_processes = num_processes
 
-        self.dumper = Dumper(num_dumpers)
+        self.dumper = Dumper(num=num_dumpers, path=dump_root)
 
     def run(self):
         self.dumper.run()
@@ -40,3 +40,7 @@ class Proxy(Process):
         print("Proxy server is up ...")
         loop = IOLoop.instance()
         loop.start()
+
+    def join(self, timeout=None):
+        super().join(timeout)
+        self.dumper.join()

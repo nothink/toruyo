@@ -6,15 +6,17 @@ from queue import Queue, Empty
 from datetime import datetime
 import os
 import fcntl
+from urllib.parse import urlparse
 
 
 class Dumper(object):
 
-    def __init__(self, num):
+    def __init__(self, num=1, path='./'):
         self.queue = Queue()
         self.stopping = Event()
         self.threads = []
         self.TIMEOUT = 60
+        self.root_path = os.path.abspath(path)
 
         for i in range(num):
             t = Thread(target=self.__work, args=(i, self.queue))
@@ -25,18 +27,33 @@ class Dumper(object):
         # q - Queue from which to receive data
         while not self.stopping.is_set():
             try:
-                with open('dump.log', 'a') as f:
+                tpl = q.get(True, self.TIMEOUT)
+                req = tpl[0]   # request
+                res = tpl[1]   # response
+                uri = urlparse(req.uri)
+
+                tmp_path = os.path.join(self.root_path, uri.hostname)
+                tmp_path += uri.path
+                (filedirs, filename) = os.path.split(tmp_path)
+                filename = 'index.html' if filename == '' else filename
+                dump_path = os.path.join(filedirs, filename)
+
+                # create dirs if not exists
+                if not os.path.isdir(filedirs):
+                    os.makedirs(filedirs)
+
+                # dump files
+                with open(dump_path, 'wb') as f:
                     fcntl.flock(f, fcntl.LOCK_EX)
-                    data = q.get(True, self.TIMEOUT)
-                    f.write('[' + str(datetime.now()) + '] ' + str(data) + '\n')
+                    f.write(res.body)
                     f.flush()
                     fcntl.flock(f, fcntl.LOCK_UN)
 
             except Empty:
                 continue
 
-    def put_request(self, args):
-        self.queue.put(args)
+    def request(self, http_req, http_res):
+        self.queue.put((http_req, http_res))
 
     def run(self):
         for t in self.threads:

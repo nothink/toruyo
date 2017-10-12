@@ -3,6 +3,10 @@
 from threading import Thread, Event
 from queue import Queue, Empty
 
+from datetime import datetime
+import os
+import fcntl
+
 
 class Dumper(object):
 
@@ -21,8 +25,13 @@ class Dumper(object):
         # q - Queue from which to receive data
         while not self.stopping.is_set():
             try:
-                data = q.get(True, self.TIMEOUT)
-                print('worker ' + str(n) + ' got ' + str(data))
+                with open('dump.log', 'a') as f:
+                    fcntl.flock(f, fcntl.LOCK_EX)
+                    data = q.get(True, self.TIMEOUT)
+                    f.write('[' + str(datetime.now()) + '] ' + str(data) + '\n')
+                    f.flush()
+                    fcntl.flock(f, fcntl.LOCK_UN)
+
             except Empty:
                 continue
 

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from .handler import ProxyHandler
-#from .dumper.channel import DumpChannel
 from .dumper import Dumper
 
 from multiprocessing import Process
@@ -14,7 +13,8 @@ from tornado.web import Application
 
 class Proxy(Process):
     def __init__(self, port, address='0.0.0.0', dump_root='./',
-                 patterns=[], debug=False):
+                 patterns=[], debug=False,
+                 num_processes=0, num_dumpers=5):
         super().__init__()
 
         self.port = port
@@ -22,8 +22,9 @@ class Proxy(Process):
         self.dump_root = dump_root
         self.patterns = patterns
         self.debug = debug
+        self.num_processes = num_processes
 
-        self.dumper = Dumper(5)
+        self.dumper = Dumper(num_dumpers)
 
     def run(self):
         self.dumper.run()
@@ -34,7 +35,7 @@ class Proxy(Process):
 
         print("Binding port %d" % self.port)
         server.bind(self.port, address=self.address)
-        server.start(1)
+        server.start(self.num_processes)
 
         print("Proxy server is up ...")
         loop = IOLoop.instance()

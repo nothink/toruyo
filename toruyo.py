@@ -3,6 +3,7 @@
 
 from src.proxy import Proxy
 
+import os
 from tornado.options import define, options
 from tornado.options import parse_command_line, parse_config_file
 
@@ -16,9 +17,10 @@ define("num_processes", default=0, help="number of sub-processes(0:auto)",
        type=int)
 define("num_dumpers", default=5, help="number of dumping threads", type=int)
 
-if __name__ == "__main__":
+
+def main():
     parse_command_line()
-    if options.config:
+    if options.config and os.path.exists(options.config):
         parse_config_file(options.config)
     parse_command_line()
 
@@ -34,3 +36,7 @@ if __name__ == "__main__":
     proxy.start()
 
     proxy.join()
+
+
+if __name__ == "__main__":
+    main()

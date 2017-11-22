@@ -48,6 +48,9 @@ class Dumper(object):
                     f.flush()
                     fcntl.flock(f, fcntl.LOCK_UN)
 
+                # done
+                q.task_done()
+
             except Empty:
                 continue
 

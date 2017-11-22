@@ -25,6 +25,7 @@ class ProxyHandler(RequestHandler):
         GET request event handling　(Transparently).
         '''
         try:
+            print('from: ' + self.request.remote_ip)
             # Delete a harmful 'Proxy-Connection' header.
             if 'Proxy-Connection' in self.request.headers:
                 del self.request.headers['Proxy-Connection']
@@ -34,7 +35,8 @@ class ProxyHandler(RequestHandler):
                 body=self.request.body if self.request.body else None,
                 headers=self.request.headers,
                 follow_redirects=False,
-                allow_nonstandard_methods=True)
+                allow_nonstandard_methods=True,
+                decompress_response=True)
             client = AsyncHTTPClient()
             client.fetch(req, self.__handle_response, raise_error=False)
         except HTTPError as e:

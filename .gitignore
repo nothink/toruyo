@@ -102,5 +102,5 @@ ENV/
 
 ######################################
 # project specific files
-proxy.conf
-patterns.json
+#proxy.conf
+#patterns.json

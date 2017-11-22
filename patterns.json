@@ -1,0 +1,6 @@
+[
+    {
+        'host': 'stat100\.ameba\.jp$',
+        'content_type': '^(?!text\/|application\/)',
+    },
+]
